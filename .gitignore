@@ -1,0 +1,63 @@
+# ==========================================
+# Entornos Virtuales de Python
+# ==========================================
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ==========================================
+# Bytecode y Caché de Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ==========================================
+# Perfiles, Caché y Sesiones de Chrome / WhatsApp (Selenium)
+# ==========================================
+whatsapp_profile/
+whatsapp_profile_*/
+whatsapp_session_*/
+whatsapp_test_*/
+test_profile/
+test_profile_*/
+temp_test_chrome_dir/
+scratch_edge_test/
+chrome_profile*/
+user_data*/
+
+# ==========================================
+# Archivos de Registro y Salidas Temporales
+# ==========================================
+chrome_out*.txt
+*.log
+
+# ==========================================
+# Base de Datos Local y Claves Sensibles
+# ==========================================
+*.db
+*.sqlite3
+*.db-journal
+*.key
+.env
+
+# ==========================================
+# Configuraciones de IDEs y Editores
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# Archivos Temporales del Sistema Operativo
+# ==========================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
