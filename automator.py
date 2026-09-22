@@ -124,6 +124,8 @@ class Automator:
                         correo = (cliente.get("correo") or "").strip()
                         telefono = (cliente.get("telefono") or "").strip()
                         estado_cli = cliente.get("estado", "")
+                        categoria_cli = cliente.get("categoria") or "🥉 Bronce"
+                        fecha_actual = datetime.now().strftime("%d/%m/%Y")
 
                         cuerpo = (
                             mensaje_plantilla
@@ -131,6 +133,9 @@ class Automator:
                             .replace("{correo}", correo)
                             .replace("{telefono}", telefono)
                             .replace("{estado}", estado_cli)
+                            .replace("{categoria}", categoria_cli)
+                            .replace("{fecha}", fecha_actual)
+                            .replace("{minimarket}", "Minimarket")
                         )
 
                         cola_envios.append({
@@ -248,7 +253,19 @@ class Automator:
                         exito = False
                     else:
                         asunto = f"Aviso Minimarket: {nombre_regla}"
-                        exito, estado_envio = smtp.enviar_mensaje(destinatario=correo, asunto=asunto, cuerpo=cuerpo)
+                        cuerpo_envio = cuerpo
+                        if cuerpo.strip().lower().startswith("asunto:"):
+                            partes = cuerpo.strip().split("\n\n", 1)
+                            if len(partes) == 2:
+                                asunto = partes[0].split(":", 1)[1].strip()
+                                cuerpo_envio = partes[1].strip()
+                            else:
+                                lineas = cuerpo.strip().split("\n", 1)
+                                if len(lineas) == 2:
+                                    asunto = lineas[0].split(":", 1)[1].strip()
+                                    cuerpo_envio = lineas[1].strip()
+
+                        exito, estado_envio = smtp.enviar_mensaje(destinatario=correo, asunto=asunto, cuerpo=cuerpo_envio)
 
             hora_envio_exacta = datetime.now().strftime("%H:%M:%S")
 

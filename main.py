@@ -14,7 +14,7 @@ from PIL import Image
 import customtkinter as ctk
 
 from license_manager import LicenseManager, get_hardware_id
-from database import MinimarketDB
+from database import MinimarketDB, REGLAS_PREDETERMINADAS_MINIMARKET
 from smtp_manager import SMTPManager
 from whatsapp_manager import GestorWhatsApp
 from automator import Automator
@@ -2988,49 +2988,126 @@ class MinimarketApp(ctk.CTk):
         }
 
         # Columna Izquierda: Formulario de Regla
-        form_frame = ctk.CTkFrame(frame)
+        form_frame = ctk.CTkScrollableFrame(frame)
         form_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10), pady=0)
 
-        ctk.CTkLabel(form_frame, text="Nueva Regla de Automatización", font=ctk.CTkFont(size=18, weight="bold"), text_color=("black", "white")).pack(pady=(15, 8))
+        ctk.CTkLabel(
+            form_frame,
+            text="Nueva Regla de Automatización",
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=("black", "white")
+        ).pack(pady=(12, 6))
 
+        # Selector de Plantillas / Modelos Rápidos para Minimarket
+        ctk.CTkLabel(
+            form_frame,
+            text="📋 Modelo / Plantilla de Minimarket:",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=("black", "white")
+        ).pack(anchor="w", padx=15, pady=(4, 2))
+
+        self._mapa_modelos_reglas = {
+            f"[{r['tipo']}] {r['nombre_regla']}": r for r in REGLAS_PREDETERMINADAS_MINIMARKET
+        }
+        opciones_modelos = ["(Seleccione un modelo para auto-llenar...)"] + list(self._mapa_modelos_reglas.keys())
+        self.combo_modelo_regla = ctk.CTkComboBox(
+            form_frame,
+            values=opciones_modelos,
+            command=self.al_seleccionar_modelo_regla
+        )
+        self.combo_modelo_regla.set("(Seleccione un modelo para auto-llenar...)")
+        self.combo_modelo_regla.pack(fill="x", padx=15, pady=(0, 6))
+
+        ctk.CTkLabel(
+            form_frame,
+            text="Nombre de la Regla:",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=("black", "white")
+        ).pack(anchor="w", padx=15, pady=(4, 2))
         self.entry_regla_nombre = ctk.CTkEntry(form_frame, placeholder_text="Nombre (ej. Promo Fin de Semana)")
-        self.entry_regla_nombre.pack(fill="x", padx=20, pady=4)
+        self.entry_regla_nombre.pack(fill="x", padx=15, pady=(0, 6))
 
         # ComboBox para elegir si el envío se hará por 'Correo SMTP' o 'WhatsApp'
-        ctk.CTkLabel(form_frame, text="Canal de Envío (Tipo):", font=ctk.CTkFont(size=12), text_color=("black", "white")).pack(anchor="w", padx=20, pady=(4, 2))
+        ctk.CTkLabel(
+            form_frame,
+            text="Canal de Envío (Tipo):",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=("black", "white")
+        ).pack(anchor="w", padx=15, pady=(4, 2))
         self.combo_regla_tipo = ctk.CTkComboBox(form_frame, values=["WhatsApp", "Correo SMTP"], state="readonly")
         self.combo_regla_tipo.set("WhatsApp")
-        self.combo_regla_tipo.pack(fill="x", padx=20, pady=4)
+        self.combo_regla_tipo.pack(fill="x", padx=15, pady=(0, 6))
 
-        ctk.CTkLabel(form_frame, text="Condición (ej. Activo, Inactivo, VIP, todos):", font=ctk.CTkFont(size=12), text_color=("black", "white")).pack(anchor="w", padx=20, pady=(4, 2))
+        ctk.CTkLabel(
+            form_frame,
+            text="Condición (ej. Activo, VIP, todos):",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=("black", "white")
+        ).pack(anchor="w", padx=15, pady=(4, 2))
         self.entry_regla_condicion = ctk.CTkEntry(form_frame, placeholder_text="Condición que debe cumplir el cliente")
         self.entry_regla_condicion.insert(0, "Activo")
-        self.entry_regla_condicion.pack(fill="x", padx=20, pady=4)
+        self.entry_regla_condicion.pack(fill="x", padx=15, pady=(0, 6))
 
-        ctk.CTkLabel(form_frame, text="Mensaje (Usa {nombre}, {correo}, {telefono}, {estado}):", font=ctk.CTkFont(size=12), text_color=("black", "white")).pack(anchor="w", padx=20, pady=(4, 2))
-        self.text_regla_mensaje = ctk.CTkTextbox(form_frame, height=110)
+        ctk.CTkLabel(
+            form_frame,
+            text="Mensaje Plantilla:",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=("black", "white")
+        ).pack(anchor="w", padx=15, pady=(4, 2))
+        self.text_regla_mensaje = ctk.CTkTextbox(form_frame, height=100)
         self.text_regla_mensaje.insert("1.0", "Hola {nombre}, tenemos una oferta especial para ti!")
-        self.text_regla_mensaje.pack(fill="x", padx=20, pady=4)
+        self.text_regla_mensaje.pack(fill="x", padx=15, pady=(0, 4))
+
+        # Botones de inserción rápida de variables dinámicas (Grilla 2x3 compacta)
+        vars_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
+        vars_frame.pack(fill="x", padx=15, pady=(0, 6))
+        vars_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+        lista_tags_ui = [
+            ("{nombre}", "+ {nombre}"),
+            ("{categoria}", "+ {categoría}"),
+            ("{fecha}", "+ {fecha}"),
+            ("{telefono}", "+ {teléfono}"),
+            ("{correo}", "+ {correo}"),
+            ("{minimarket}", "+ {minimarket}")
+        ]
+        for idx_t, (tag_val, tag_lbl) in enumerate(lista_tags_ui):
+            r_idx = idx_t // 3
+            c_idx = idx_t % 3
+            ctk.CTkButton(
+                vars_frame,
+                text=tag_lbl,
+                height=22,
+                font=ctk.CTkFont(size=9),
+                fg_color=["gray80", "gray30"],
+                hover_color=["gray70", "gray40"],
+                text_color=("black", "white"),
+                command=lambda t=tag_val: self.insertar_variable_regla(t)
+            ).grid(row=r_idx, column=c_idx, padx=2, pady=2, sticky="ew")
 
         self.switch_regla_activa = ctk.CTkSwitch(form_frame, text="Regla Activa", text_color=("black", "white"))
         self.switch_regla_activa.select()
-        self.switch_regla_activa.pack(anchor="w", padx=20, pady=8)
+        self.switch_regla_activa.pack(anchor="w", padx=15, pady=(4, 8))
 
         self.btn_guardar_regla = ctk.CTkButton(
-            form_frame, text="💾 Guardar Regla", fg_color="#27ae60", hover_color="#219955",
+            form_frame,
+            text="💾 Guardar Regla",
+            fg_color="#27ae60",
+            hover_color="#219955",
+            font=ctk.CTkFont(size=12, weight="bold"),
             command=self.guardar_regla
         )
-        self.btn_guardar_regla.pack(fill="x", padx=20, pady=(8, 6))
+        self.btn_guardar_regla.pack(fill="x", padx=15, pady=(4, 4))
 
         self.btn_abrir_admin_reglas = ctk.CTkButton(
             form_frame,
             text="⚙️ Administrar Reglas (Editar / Eliminar)",
             fg_color="#34495e",
             hover_color="#2c3e50",
-            font=ctk.CTkFont(size=12, weight="bold"),
+            font=ctk.CTkFont(size=11, weight="bold"),
             command=self.abrir_ventana_admin_reglas
         )
-        self.btn_abrir_admin_reglas.pack(fill="x", padx=20, pady=(0, 15))
+        self.btn_abrir_admin_reglas.pack(fill="x", padx=15, pady=(2, 15))
 
         # Columna Derecha: Lista de Reglas, Configuración Anti-Baneo y Monitor de Cola
         lista_frame = ctk.CTkFrame(frame)
@@ -3699,6 +3776,44 @@ class MinimarketApp(ctk.CTk):
                 "btn_quitar": btn_quitar
             })
 
+    def al_seleccionar_modelo_regla(self, seleccion: str):
+        """Auto-completa el formulario con la plantilla temática de Minimarket seleccionada."""
+        if hasattr(self, "_mapa_modelos_reglas") and seleccion in self._mapa_modelos_reglas:
+            modelo = self._mapa_modelos_reglas[seleccion]
+            self.entry_regla_nombre.delete(0, "end")
+            self.entry_regla_nombre.insert(0, modelo["nombre_regla"])
+
+            tipo_val = "Correo SMTP" if "SMTP" in modelo["tipo"].upper() else "WhatsApp"
+            self.combo_regla_tipo.set(tipo_val)
+
+            self.entry_regla_condicion.delete(0, "end")
+            self.entry_regla_condicion.insert(0, modelo.get("condicion", "Activo"))
+
+            self.text_regla_mensaje.delete("1.0", "end")
+            self.text_regla_mensaje.insert("1.0", modelo["mensaje"])
+
+            self.switch_regla_activa.select()
+
+    def insertar_variable_regla(self, var_str: str):
+        """Inserta la variable dinámica en el editor de mensaje de la regla."""
+        if hasattr(self, "text_regla_mensaje"):
+            self.text_regla_mensaje.insert("insert", var_str)
+
+    def cargar_reglas_predeterminadas_ui(self):
+        """Carga o sincroniza todas las reglas predeterminadas oficiales de Minimarket en la base de datos."""
+        insertadas = self.db.inicializar_reglas_predeterminadas_minimarket(forzar=False)
+        self.actualizar_selectores_destinatarios()
+        if insertadas > 0:
+            messagebox.showinfo(
+                "Reglas Inicializadas",
+                f"¡Éxito! Se han incorporado {insertadas} nuevas reglas temáticas de Minimarket (WhatsApp y Correo SMTP) a la base de datos."
+            )
+        else:
+            messagebox.showinfo(
+                "Reglas al Día",
+                "Todas las reglas oficiales de Minimarket ya se encuentran registradas y listas para su uso en la base de datos."
+            )
+
     def guardar_regla(self):
         nombre = self.entry_regla_nombre.get().strip()
         tipo = self.combo_regla_tipo.get().strip()
@@ -3722,16 +3837,16 @@ class MinimarketApp(ctk.CTk):
         """Abre una ventana flotante para administrar, editar, activar/desactivar y eliminar reglas."""
         modal = ctk.CTkToplevel(self)
         modal.title("⚙️ Administración y Edición de Reglas de Automatización")
-        modal.geometry("900x620")
-        modal.minsize(820, 540)
+        modal.geometry("1000x640")
+        modal.minsize(940, 560)
         modal.transient(self)
         modal.after(100, modal.lift)
 
         # Centrar ventana modal
         modal.update_idletasks()
-        x = self.winfo_x() + max(0, (self.winfo_width() - 900) // 2)
-        y = self.winfo_y() + max(0, (self.winfo_height() - 620) // 2)
-        modal.geometry(f"900x620+{x}+{y}")
+        x = self.winfo_x() + max(0, (self.winfo_width() - 1000) // 2)
+        y = self.winfo_y() + max(0, (self.winfo_height() - 640) // 2)
+        modal.geometry(f"1000x640+{x}+{y}")
 
         # Encabezado
         header = ctk.CTkFrame(modal, fg_color="transparent")
@@ -3751,14 +3866,14 @@ class MinimarketApp(ctk.CTk):
             text_color=("gray30", "gray70")
         ).pack(anchor="w")
 
-        # Contenedor principal de 2 columnas
+        # Contenedor principal de 2 columnas con anchos mínimos y distribución garantizada
         body = ctk.CTkFrame(modal, fg_color="transparent")
         body.pack(fill="both", expand=True, padx=20, pady=(0, 15))
-        body.grid_columnconfigure(0, weight=3)
-        body.grid_columnconfigure(1, weight=2)
+        body.grid_columnconfigure(0, weight=1, minsize=520)
+        body.grid_columnconfigure(1, weight=0, minsize=400)
         body.grid_rowconfigure(0, weight=1)
 
-        # Columna Izquierda: Lista de Reglas
+        # Columna Izquierda: Lista de Reglas (Con espacio amplio garantizado)
         left_frame = ctk.CTkFrame(body)
         left_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
         left_frame.grid_rowconfigure(1, weight=1)
@@ -3767,16 +3882,17 @@ class MinimarketApp(ctk.CTk):
         ctk.CTkLabel(
             left_frame,
             text="📋 Reglas Registradas en la Base de Datos:",
-            font=ctk.CTkFont(size=13, weight="bold"),
+            font=ctk.CTkFont(size=14, weight="bold"),
             text_color=("black", "white")
         ).grid(row=0, column=0, sticky="w", padx=15, pady=(12, 6))
 
         scroll_modal_reglas = ctk.CTkScrollableFrame(left_frame)
         scroll_modal_reglas.grid(row=1, column=0, sticky="nsew", padx=12, pady=(0, 12))
 
-        # Columna Derecha: Editor de Regla
-        right_frame = ctk.CTkFrame(body)
+        # Columna Derecha: Editor de Regla con ancho fijo para no comprimir la lista
+        right_frame = ctk.CTkFrame(body, width=400)
         right_frame.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
+        right_frame.grid_propagate(False)
 
         ctk.CTkLabel(
             right_frame,
@@ -3808,7 +3924,33 @@ class MinimarketApp(ctk.CTk):
 
         ctk.CTkLabel(right_frame, text="Mensaje Plantilla:", font=ctk.CTkFont(size=11, weight="bold"), text_color=("black", "white")).pack(anchor="w", padx=15, pady=(4, 2))
         text_edit_mensaje = ctk.CTkTextbox(right_frame, height=100)
-        text_edit_mensaje.pack(fill="both", expand=True, padx=15, pady=(0, 6))
+        text_edit_mensaje.pack(fill="both", expand=True, padx=15, pady=(0, 4))
+
+        vars_edit_box = ctk.CTkFrame(right_frame, fg_color="transparent")
+        vars_edit_box.pack(fill="x", padx=15, pady=(0, 6))
+        vars_edit_box.grid_columnconfigure((0, 1, 2), weight=1)
+
+        tags_modal = [
+            ("{nombre}", "+ {nombre}"),
+            ("{categoria}", "+ {categoría}"),
+            ("{fecha}", "+ {fecha}"),
+            ("{telefono}", "+ {teléfono}"),
+            ("{correo}", "+ {correo}"),
+            ("{minimarket}", "+ {minimarket}")
+        ]
+        for idx_m, (t_val, t_lbl) in enumerate(tags_modal):
+            r_idx = idx_m // 3
+            c_idx = idx_m % 3
+            ctk.CTkButton(
+                vars_edit_box,
+                text=t_lbl,
+                height=22,
+                font=ctk.CTkFont(size=9),
+                fg_color=["gray80", "gray30"],
+                hover_color=["gray70", "gray40"],
+                text_color=("black", "white"),
+                command=lambda val=t_val: text_edit_mensaje.insert("insert", val)
+            ).grid(row=r_idx, column=c_idx, padx=2, pady=2, sticky="ew")
 
         switch_edit_activa = ctk.CTkSwitch(right_frame, text="Regla Activa", text_color=("black", "white"))
         switch_edit_activa.select()
@@ -3927,28 +4069,29 @@ class MinimarketApp(ctk.CTk):
                 card = ctk.CTkFrame(scroll_modal_reglas, fg_color=["gray85", "gray25"], corner_radius=6)
                 card.pack(fill="x", padx=4, pady=4)
                 card.grid_columnconfigure(0, weight=1)
+                card.grid_columnconfigure(1, weight=0)
 
                 tipo_icono = "📲" if "WHATSAPP" in str(r.get('tipo', '')).upper() else "✉️"
                 titulo = f"#{r['id']} {r['nombre_regla']} [{tipo_icono} {r['tipo']}]"
                 sub = f"Condición: '{r['condicion']}' | Estado: {'🟢 Activa' if r['activa'] else '🔴 Inactiva'}"
 
                 ctk.CTkLabel(
-                    card, text=titulo, font=ctk.CTkFont(size=12, weight="bold"), anchor="w", text_color=("black", "white")
+                    card, text=titulo, font=ctk.CTkFont(size=12, weight="bold"), anchor="w", justify="left", text_color=("black", "white"), wraplength=310
                 ).grid(row=0, column=0, padx=10, pady=(6, 0), sticky="w")
 
                 ctk.CTkLabel(
-                    card, text=sub, font=ctk.CTkFont(size=10), text_color=("gray30", "gray70"), anchor="w"
+                    card, text=sub, font=ctk.CTkFont(size=10), text_color=("gray30", "gray70"), anchor="w", justify="left"
                 ).grid(row=1, column=0, padx=10, pady=(0, 2), sticky="w")
 
                 preview_msg = (r.get("mensaje") or "").replace("\n", " ")
-                if len(preview_msg) > 65:
-                    preview_msg = preview_msg[:62] + "..."
+                if len(preview_msg) > 55:
+                    preview_msg = preview_msg[:52] + "..."
                 ctk.CTkLabel(
-                    card, text=f'💬 "{preview_msg}"', font=ctk.CTkFont(size=10, slant="italic"), text_color=("gray40", "gray60"), anchor="w"
+                    card, text=f'💬 "{preview_msg}"', font=ctk.CTkFont(size=10, slant="italic"), text_color=("gray40", "gray60"), anchor="w", justify="left", wraplength=310
                 ).grid(row=2, column=0, padx=10, pady=(0, 6), sticky="w")
 
                 b_frame = ctk.CTkFrame(card, fg_color="transparent")
-                b_frame.grid(row=0, column=1, rowspan=3, padx=(4, 8), pady=4)
+                b_frame.grid(row=0, column=1, rowspan=3, padx=(4, 8), pady=4, sticky="e")
 
                 btn_edit = ctk.CTkButton(
                     b_frame,
@@ -4065,6 +4208,7 @@ class MinimarketApp(ctk.CTk):
             es_whatsapp = "WHATSAPP" in canal_item.upper()
             nombre_canal = "WhatsApp" if es_whatsapp else "SMTP"
 
+            categoria_cli = cli.get("categoria") or "🥉 Bronce"
             mensaje_plantilla = reg.get("mensaje", "")
             cuerpo = (
                 mensaje_plantilla
@@ -4072,6 +4216,7 @@ class MinimarketApp(ctk.CTk):
                 .replace("{correo}", correo)
                 .replace("{telefono}", telefono)
                 .replace("{estado}", estado_cli)
+                .replace("{categoria}", categoria_cli)
                 .replace("{fecha}", fecha_actual)
                 .replace("{minimarket}", "Minimarket")
             )

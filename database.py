@@ -5,6 +5,318 @@ from typing import Optional, List, Dict, Any
 # Configurar logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# ==============================================================================
+# CATÁLOGO DE REGLAS Y MODELOS PREDETERMINADOS PARA NEGOCIO DE MINIMARKET
+# ==============================================================================
+REGLAS_PREDETERMINADAS_MINIMARKET = [
+    # --- MODELOS / REGLAS PARA WHATSAPP ---
+    {
+        "nombre_regla": "🛒 Ofertas del Día en Abarrotes y Despensa",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Hola {nombre}! 🛒 En *Minimarket* cuidamos tu economía familiar hoy {fecha}:\n\n"
+            "🔥 *Arroz, azúcar y aceites* con 15% de descuento\n"
+            "🥛 *Lácteos y embutidos frescos* a precios especiales de rebaja\n"
+            "🥫 *3x2* en conservas, fideos y salsas seleccionadas\n\n"
+            "📍 ¡Visítanos hoy o haz tu pedido por aquí y te lo llevamos volando a casa! 🛵💨"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥑 Frutas y Verduras Fresquitas del Día",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Hola {nombre}! 🥑🍎 ¡Llegó mercadería fresquita a *Minimarket* hoy {fecha}!\n\n"
+            "🥗 *Paltas cremosas, tomates, lechugas y verduras del día*\n"
+            "🍌 *Plátanos dulces, manzanas, naranjas y frutas de temporada*\n"
+            "🥚 *Huevos frescos de granja* por docena y maple al mejor precio\n\n"
+            "✨ ¡Calidad y frescura garantizada para tu familia! Pasa por tu compra o pídelo a domicilio. 🛵💨"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥖 Pan Caliente, Empanadas y Desayunos",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Buenos días {nombre}! 🥖☀️\n\n"
+            "En *Minimarket* ya salió la primera tanda de *pan caliente y crujiente* recién horneado:\n\n"
+            "☕ Café selecto, leche fresca, huevos y mermeladas\n"
+            "🥐 Empanaditas calientes y bocadillos para tu mañana\n"
+            "🧀 Jamones y quesos frescos rebanados al instante\n\n"
+            "¡Empieza tu día con la mejor energía! Te esperamos antes de que se termine. 🥐✨"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥩 Carnicería y Embutidos de Calidad",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Hola {nombre}! 🥩🍗 Hoy en *Minimarket* tenemos los mejores cortes y embutidos para tu almuerzo:\n\n"
+            "🍗 *Pollo fresco y carnes seleccionadas*\n"
+            "🥓 *Embutidos, chorizos parrilleros y salchichas*\n"
+            "🧈 *Mantequilla y quesos artesanales*\n\n"
+            "¡Ahorra sin sacrificar calidad en tu mesa! Haz tu encargo por aquí. 🛵🛒"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥤 Combo Fin de Semana: Cervezas, Snacks y Bebidas",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Hola {nombre}! 🍿🍻 ¡Llegó el fin de semana a *Minimarket*!\n\n"
+            "❄️ *Cervezas, gaseosas y jugos al polo* (bien heladas)\n"
+            "🍟 *Snacks, papitas, chocolates, galletas y piqueos en oferta*\n"
+            "🧊 *Bolsas de hielo y carbón* listos para tu reunión o parrilla\n\n"
+            "🎉 ¡No salgas de casa! Pide tu combo por WhatsApp y te lo llevamos en minutos. 🛵💨"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🧼 Pack Ahorro Hogar: Limpieza y Aseo",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Hola {nombre}! 🧼✨ En *Minimarket* armamos packs de ahorro para que tu hogar quede impecable:\n\n"
+            "🧺 *Detergentes y suavizantes* en tamaño económico\n"
+            "🧽 *Lavavajillas, desinfectantes y lavandina multiusos*\n"
+            "🧻 *Papel higiénico y toallas de cocina* en paquetes familiares\n\n"
+            "¡Ven por tu pack de ahorro o solicítalo a domicilio hoy mismo! 🏪👍"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "⭐ Cliente VIP: Descuento Exclusivo",
+        "tipo": "WhatsApp",
+        "condicion": "VIP",
+        "mensaje": (
+            "¡Estimado(a) {nombre}! ⭐ En *Minimarket* premiamos tu preferencia constante:\n\n"
+            "👑 Como cliente especial categoría {categoria}, hoy tienes un *descuento exclusivo del 10%* en tu próxima compra o delivery.\n"
+            "¡Gracias por ser parte de nuestra gran familia! Estamos a tu orden. 🏪🤝"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🛵 Delivery Express a Domicilio (Pedido Fácil)",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Hola {nombre}! 🛵 ¿Te falta algo en la cocina o en tu despensa?\n\n"
+            "¡En *Minimarket* te lo llevamos hasta la puerta de tu casa en minutos!\n"
+            "📲 Solo envíanos tu lista de compras por este chat.\n"
+            "💳 Aceptamos efectivo, transferencia bancaria, pago QR o tarjeta.\n\n"
+            "¡Rápido, cómodo y seguro! Escríbenos cuando lo necesites. 🏪📦"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🎂 Saludo de Cumpleaños / Descuento Especial",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "¡Feliz Cumpleaños {nombre}! 🎂🎉🎈\n\n"
+            "En *Minimarket* estamos felices de celebrar contigo en este día especial.\n"
+            "🎁 Hoy tienes un *15% de descuento en toda tu compra* presentando este mensaje.\n\n"
+            "¡Que pases un día maravilloso junto a tu familia! 🥳✨"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "💰 Recordatorio Amable de Saldo / Fiado",
+        "tipo": "WhatsApp",
+        "condicion": "Activo",
+        "mensaje": (
+            "Estimado(a) {nombre}, le saludamos cordialmente de *Minimarket*. 🏪\n\n"
+            "Le recordamos de manera amable que mantiene un saldo pendiente por compras recientes en nuestra tienda.\n"
+            "Agradeceremos pueda pasar a cancelar o realizar su pago vía QR / transferencia a su comodidad.\n\n"
+            "¡Agradecemos mucho su confianza y comprensión! Cualquier duda estamos a su servicio. 👍"
+        ),
+        "activa": True
+    },
+    # --- MODELOS / REGLAS PARA CORREO SMTP ---
+    {
+        "nombre_regla": "🛒 Super Ofertas Semanales de Despensa y Canasta Básica",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🛒 ¡Ahorra en grande esta semana en {minimarket}! Ofertas exclusivas para ti\n\n"
+            "Estimado(a) {nombre},\n\n"
+            "Esperamos que se encuentre muy bien. En {minimarket} queremos cuidar su economía familiar, "
+            "por lo que esta semana traemos descuentos especiales en productos esenciales de la canasta básica:\n\n"
+            "✅ Arroz, azúcar y aceite de las mejores marcas con hasta 15% de descuento.\n"
+            "✅ Leche, yogures y quesos frescos seleccionados para su familia.\n"
+            "✅ Promoción 3x2 en fideos, conservas y salsas de tomate.\n"
+            "✅ Descuentos imperdibles en artículos de limpieza y aseo personal.\n\n"
+            "📅 Promoción válida del {fecha} hasta agotar stock.\n"
+            "📍 Visítenos hoy mismo o realice su pedido a domicilio y se lo llevamos directamente a su puerta.\n\n"
+            "¡Agradecemos su preferencia y fidelidad!\n\n"
+            "Atentamente,\n"
+            "El equipo de {minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥑 Llegada de Frutas, Verduras y Lácteos Frescos",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🥑 ¡Mercadería Fresca recién llegada a {minimarket}! Frutas y verduras del día\n\n"
+            "¡Hola {nombre}!\n\n"
+            "Le informamos que hoy {fecha} acabamos de recibir nuestro camión con las frutas y verduras más frescas del mercado:\n\n"
+            "🥦 Paltas cremosas, tomates maduros, lechugas frescas y verduras del día.\n"
+            "🍎 Manzanas crujientes, plátanos dulces, naranjas para jugo y frutas de temporada.\n"
+            "🥚 Huevos frescos de granja por docena y maple al mejor precio.\n"
+            "🥛 Lácteos y derivados frescos garantizados.\n\n"
+            "Disfrute de la máxima frescura y calidad que su mesa familiar merece.\n\n"
+            "¡Pase por su compra o escríbanos para apartar sus productos favoritos antes de que se agoten!\n\n"
+            "Saludos cordiales,\n"
+            "{minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥩 Carnicería, Embutidos y Lácteos a Precios Especiales",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🥩 Calidad y Frescura: Carnes, embutidos y cortes selectos en {minimarket}\n\n"
+            "Estimado(a) {nombre},\n\n"
+            "Para sus almuerzos y preparaciones familiares, en {minimarket} le ofrecemos los cortes y embutidos más frescos:\n\n"
+            "🍗 Pollo fresco, carnes seleccionadas y cortes listos para la semana.\n"
+            "🥓 Jamones, salchichas, chorizos y embutidos de primera calidad.\n"
+            "🧈 Mantequilla, queso criollo y lácteos artesanales.\n\n"
+            "Precios competitivos y la mejor higiene y conservación garantizada.\n\n"
+            "¡Le esperamos con la cordialidad de siempre!\n\n"
+            "Atentamente,\n"
+            "{minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥐 Desayunos y Pan Caliente Recién Horneado",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🥐🥖 ¡Empieza tu día con pan calientito y desayunos en {minimarket}!\n\n"
+            "¡Buenos días {nombre}!\n\n"
+            "En {minimarket} ya tenemos el pan caliente, crujiente y recién salido del horno listo para su desayuno:\n\n"
+            "☕ Acompañe su mañana con café selecto, leche fresca, té, mermeladas y quesos.\n"
+            "🥪 Empanadas y bocadillos recién preparados.\n"
+            "🧀 Fiambres y quesos cortados al gusto.\n\n"
+            "Abiertos desde muy temprano para que empiece su jornada con la mejor energía.\n\n"
+            "¡Que tenga un excelente día!\n\n"
+            "{minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🥤 Combo Fin de Semana: Snacks, Bebidas y Cervezas Heladas",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🎉 ¡Llegó el Fin de Semana! Snacks, piqueos y bebidas heladas en {minimarket}\n\n"
+            "¡Hola {nombre}!\n\n"
+            "¿Planes para descansar o compartir con familia y amigos este fin de semana? En {minimarket} tenemos todo listo:\n\n"
+            "❄️ Cervezas, gaseosas, aguas y jugos al polo (bien heladas).\n"
+            "🍿 Papitas, piqueos, chocolates, galletas y snacks surtidos.\n"
+            "🧊 Bolsas de hielo, vasos descartables y carbón para su parrilla.\n\n"
+            "No se preocupe por salir: solicite su pedido a domicilio y se lo entregamos en minutos.\n\n"
+            "¡A disfrutar el fin de semana!\n\n"
+            "{minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🧼 Pack Ahorro Hogar: Limpieza y Aseo Familiar",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🧼 ¡Tu Hogar Impecable! Ofertas en productos de limpieza en {minimarket}\n\n"
+            "Estimado(a) {nombre},\n\n"
+            "Mantener su hogar limpio y desinfectado ahora cuesta menos en {minimarket}:\n\n"
+            "🧺 Detergentes en polvo y líquidos en formatos económicos familiares.\n"
+            "✨ Lavavajillas, desinfectantes multiusos y lavandina.\n"
+            "🧻 Papel higiénico, servilletas y toallas de cocina en paquetes familiares.\n\n"
+            "Calidad y rendimiento comprobado para cuidar el presupuesto de su hogar.\n\n"
+            "¡Visítenos hoy o solicite su despacho a domicilio!\n\n"
+            "Atentamente,\n"
+            "Administración de {minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "⭐ Programa Cliente VIP: Beneficio Exclusivo del Mes",
+        "tipo": "Correo SMTP",
+        "condicion": "VIP",
+        "mensaje": (
+            "Asunto: ⭐ Eres un Cliente VIP en {minimarket}: Accede a beneficios exclusivos\n\n"
+            "Estimado(a) {nombre},\n\n"
+            "Queremos agradecerle especialmente por su lealtad y confianza constante en {minimarket}.\n\n"
+            "Como cliente preferencial en categoría {categoria}, este mes cuenta con beneficios únicos en nuestra tienda:\n"
+            "🌟 Precios preferenciales en compras por mayor y canasta familiar.\n"
+            "🌟 Descuento del 10% en sus compras de fin de semana.\n"
+            "🌟 Atención prioritaria en pedidos a domicilio y reserva de stock.\n\n"
+            "¡Será un gusto atenderle siempre con el trato y dedicación que usted merece!\n\n"
+            "Cordialmente,\n"
+            "Gerencia de {minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "🎂 Descuento de Cumpleaños para Clientes Frecuentes",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🎂🎁 ¡Feliz Cumpleaños {nombre}! Tenemos un regalo especial para ti en {minimarket}\n\n"
+            "¡Feliz Cumpleaños {nombre}! 🎉🎂🎈\n\n"
+            "De parte de toda la familia de {minimarket}, queremos desearle un día lleno de bendiciones, salud y alegría junto a sus seres queridos.\n\n"
+            "🎁 Para celebrarlo con usted, le obsequiamos un 15% de descuento en toda su compra durante la semana de su cumpleaños presentando este correo.\n\n"
+            "¡Gracias por ser un cliente tan valioso para nosotros!\n\n"
+            "Un abrazo cordial,\n"
+            "{minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "💰 Recordatorio Cordial de Saldo Pendiente",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🏪 Estado de Cuenta / Saldo Pendiente en {minimarket}\n\n"
+            "Estimado(a) {nombre},\n\n"
+            "Le enviamos un saludo cordial de parte de la administración de {minimarket}.\n\n"
+            "Nos comunicamos respetuosamente para informarle que registra un saldo pendiente de pago correspondiente a sus compras recientes en nuestra tienda.\n\n"
+            "Agradeceremos pueda pasar por el local para regularizar su cuenta a la brevedad posible, o realizar su abono a través de transferencia bancaria o código QR.\n\n"
+            "Si ya realizó su pago recientemente, por favor desestime este mensaje. Para cualquier consulta o detalle del saldo, estamos a su total disposición.\n\n"
+            "Muchas gracias por su atención y comprensión.\n\n"
+            "Atentamente,\n"
+            "Administración de {minimarket} 🏪"
+        ),
+        "activa": True
+    },
+    {
+        "nombre_regla": "⏰ Horarios de Atención, Medios de Pago y Delivery",
+        "tipo": "Correo SMTP",
+        "condicion": "Activo",
+        "mensaje": (
+            "Asunto: 🏪 Novedades, Delivery y Horarios de Atención en {minimarket}\n\n"
+            "Estimado(a) cliente {nombre},\n\n"
+            "En {minimarket} renovamos nuestro compromiso de brindarle el mejor servicio, variedad y comodidad:\n\n"
+            "⏰ Horario continuo de atención: Lunes a Domingo de 7:00 AM a 10:00 PM.\n"
+            "🛵 Servicio de Delivery express en minutos hasta su puerta.\n"
+            "💳 Medios de pago disponibles: Efectivo, Tarjetas de Débito/Crédito, Transferencia bancaria y pagos con QR.\n\n"
+            "¡Siempre cerca de su hogar para atenderle con una sonrisa!\n\n"
+            "Atentamente,\n"
+            "{minimarket} 🏪"
+        ),
+        "activa": True
+    }
+]
+
 class MinimarketDB:
     """Clase para gestionar la base de datos SQLite del minimarket."""
     
@@ -91,6 +403,11 @@ class MinimarketDB:
         except sqlite3.Error as e:
             logging.error(f"Error al crear las tablas: {e}")
             raise
+
+        try:
+            self._verificar_e_inicializar_reglas()
+        except Exception as e:
+            logging.warning(f"Aviso al inicializar reglas predeterminadas: {e}")
 
     # ==========================
     # CRUD para Clientes
@@ -240,6 +557,48 @@ class MinimarketDB:
         except sqlite3.Error as e:
             logging.error(f"Error al eliminar regla: {e}")
             return False
+
+    def _verificar_e_inicializar_reglas(self):
+        """Inicializa automáticamente las reglas de minimarket si la base de datos tiene 1 o menos reglas."""
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) as total FROM reglas")
+                row = cursor.fetchone()
+                total = row["total"] if row else 0
+                if total <= 1:
+                    self.inicializar_reglas_predeterminadas_minimarket(forzar=False)
+        except Exception as e:
+            logging.warning(f"Error en verificación inicial de reglas: {e}")
+
+    def inicializar_reglas_predeterminadas_minimarket(self, forzar: bool = False) -> int:
+        """
+        Inserta las reglas oficiales predeterminadas para Minimarket (WhatsApp y Correo SMTP).
+        Si forzar=False, solo inserta las que no existan previamente por nombre.
+        Retorna la cantidad de reglas nuevas insertadas.
+        """
+        insertadas = 0
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT nombre_regla FROM reglas")
+                existentes = {row["nombre_regla"].strip().lower() for row in cursor.fetchall()}
+
+                for r in REGLAS_PREDETERMINADAS_MINIMARKET:
+                    nom = r["nombre_regla"].strip()
+                    if forzar or (nom.lower() not in existentes):
+                        cursor.execute(
+                            "INSERT INTO reglas (nombre_regla, tipo, condicion, mensaje, activa) VALUES (?, ?, ?, ?, ?)",
+                            (nom, r["tipo"], r["condicion"], r["mensaje"], 1 if r.get("activa", True) else 0)
+                        )
+                        existentes.add(nom.lower())
+                        insertadas += 1
+                conn.commit()
+                if insertadas > 0:
+                    logging.info(f"Se inicializaron {insertadas} reglas predeterminadas de Minimarket.")
+        except sqlite3.Error as e:
+            logging.error(f"Error al inicializar reglas predeterminadas: {e}")
+        return insertadas
 
     # ==========================
     # CRUD para Historial
